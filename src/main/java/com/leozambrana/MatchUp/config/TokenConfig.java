@@ -6,12 +6,15 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.leozambrana.MatchUp.entity.User;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Optional;
 
 @Component
 public class TokenConfig {
-    private String secret = "secret";
+
+    @Value("${SECRET}")
+    private String secret;
 
     Algorithm algorithm = Algorithm.HMAC256(secret);
 

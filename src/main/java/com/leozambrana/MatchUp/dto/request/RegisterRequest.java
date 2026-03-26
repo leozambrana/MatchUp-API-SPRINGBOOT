@@ -1,7 +1,6 @@
 package com.leozambrana.MatchUp.dto.request;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -11,16 +10,17 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public record RegisterRequest (
+public class RegisterRequest {
+
         @NotEmpty(message = "Nome é obrigatório")
-        String name,
+        private String name;
 
         @NotEmpty(message = "Email é obrigatório")
         @Email(message = "Email deve ser válido")
-        String email,
+        private String email;
 
         @NotEmpty(message = "Senha é obrigatória")
         @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres")
-        String password
-) {}
+        private String password;
+}
 
