@@ -21,39 +21,40 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenConfig tokenConfig;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, TokenConfig tokenConfig) {
+    public AuthController(UserRepository userRepository, 
+                          AuthenticationManager authenticationManager, 
+                          TokenConfig tokenConfig, 
+                          PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.tokenConfig = tokenConfig;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
-        Authentication authentication = authenticationManager.authenticate(authToken);
-
-        User user = (User) authentication.getPrincipal();
-        assert user != null;
-        String token = tokenConfig.generateToken(user);
+        var usernamePassword = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
+        Authentication auth = authenticationManager.authenticate(usernamePassword);
+        
+        String token = tokenConfig.generateToken((User) auth.getPrincipal());
+        
         return ResponseEntity.ok(new LoginResponse(token));
     }
 
     @PostMapping("/register")
     public ResponseEntity<RegisterUserResponse> register(@Valid @RequestBody RegisterRequest request) {
-       User user = new User();
-       user.setName(request.getName());
-       user.setEmail(request.getEmail());
-       user.setPassword(passwordEncoder.encode(request.getPassword()));
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-         userRepository.save(user);
+        userRepository.save(user);
 
-         return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterUserResponse(user.getName(), user.getEmail()));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new RegisterUserResponse(user.getName(), user.getEmail()));
     }
 }
-

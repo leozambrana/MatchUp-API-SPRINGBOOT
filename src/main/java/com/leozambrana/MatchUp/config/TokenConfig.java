@@ -13,12 +13,11 @@ import java.util.Optional;
 @Component
 public class TokenConfig {
 
-    @Value("${SECRET}")
+    @Value("${jwt.secret}")
     private String secret;
 
-    Algorithm algorithm = Algorithm.HMAC256(secret);
-
     public String generateToken(User user) {
+        Algorithm algorithm = Algorithm.HMAC256(secret);
         return JWT.create()
                 .withClaim("userId", String.valueOf(user.getId()))
                 .withSubject(user.getEmail())
@@ -37,7 +36,7 @@ public class TokenConfig {
                     .verify(token);
 
             return Optional.of(JWTUserData.builder().
-                    userId(decodedJWT.getClaim("userId").asLong()).
+                    userId(decodedJWT.getClaim("userId").asString()).
                     email(decodedJWT.getSubject()).build()
             );
         } catch (JWTVerificationException e) {
