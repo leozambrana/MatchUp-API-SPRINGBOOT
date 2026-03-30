@@ -33,6 +33,7 @@ public class Participant {
     private Game game;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private ParticipantStatus status;
 
     @Column(name = "joined_at")

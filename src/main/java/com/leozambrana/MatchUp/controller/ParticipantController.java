@@ -34,14 +34,12 @@ public class ParticipantController {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
     }
 
-    // Usuário se inscreve no jogo
     @PostMapping("/join")
     public ResponseEntity<ParticipantResponse> joinGame(@PathVariable UUID gameId, Principal principal) {
         User currentUser = getAuthenticatedUser(principal);
         return ResponseEntity.status(HttpStatus.CREATED).body(participantService.joinGame(gameId, currentUser));
     }
 
-    // Criador adiciona alguém diretamente
     @PostMapping("/add/{userId}")
     public ResponseEntity<ParticipantResponse> addParticipant(@PathVariable UUID gameId,
                                                               @PathVariable UUID userId,
@@ -50,13 +48,18 @@ public class ParticipantController {
         return ResponseEntity.status(HttpStatus.CREATED).body(participantService.addParticipant(gameId, userId, currentUser));
     }
 
-    // Lista participantes
+    @PostMapping("/join/invite/{inviteCode}")
+    public ResponseEntity<ParticipantResponse> joinByInviteCode(@PathVariable String inviteCode, Principal principal) {
+        User currentUser = getAuthenticatedUser(principal);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(participantService.joinByInviteCode(inviteCode, currentUser));
+    }
+
     @GetMapping
     public ResponseEntity<List<ParticipantResponse>> listParticipants(@PathVariable UUID gameId) {
         return ResponseEntity.ok(participantService.listParticipants(gameId));
     }
 
-    // Criador atualiza status
     @PatchMapping("/{participantId}/status")
     public ResponseEntity<ParticipantResponse> updateStatus(@PathVariable UUID gameId,
                                                             @PathVariable UUID participantId,
@@ -66,7 +69,6 @@ public class ParticipantController {
         return ResponseEntity.ok(participantService.updateStatus(gameId, participantId, request, currentUser));
     }
 
-    // Remove participante
     @DeleteMapping("/{participantId}")
     public ResponseEntity<Void> removeParticipant(@PathVariable UUID gameId,
                                                   @PathVariable UUID participantId,

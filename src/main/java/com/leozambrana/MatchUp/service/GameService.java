@@ -31,6 +31,12 @@ public class GameService {
         game.setDescription(request.description());
         game.setLocation(request.location());
         game.setDateTime(request.dateTime());
+        game.setCourtType(request.courtType());
+        game.setMatchFormat(request.matchFormat());
+        game.setGender(request.gender());
+        game.setSlots(request.slots());
+        game.setDuration(request.duration());
+        game.setRecurrence(request.recurrence());
         game.setCreatedBy(creator);
 
         Game savedGame = gameRepository.save(game);
@@ -57,6 +63,12 @@ public class GameService {
         game.setDescription(request.description());
         game.setLocation(request.location());
         game.setDateTime(request.dateTime());
+        game.setCourtType(request.courtType());
+        game.setMatchFormat(request.matchFormat());
+        game.setGender(request.gender());
+        game.setSlots(request.slots());
+        game.setDuration(request.duration());
+        game.setRecurrence(request.recurrence());
 
         Game updatedGame = gameRepository.save(game);
         return gameMapper.toResponse(updatedGame);
@@ -66,6 +78,24 @@ public class GameService {
         Game game = findGameOrThrow(id);
         validateOwner(game, currentUser, "cancelar e deletar");
         gameRepository.delete(game);
+    }
+
+    public GameResponse generateInviteCode(UUID gameId, User currentUser) {
+        Game game = findGameOrThrow(gameId);
+        validateOwner(game, currentUser, "gerar convite para");
+
+        String code = generateUniqueCode();
+        game.setInviteCode(code);
+
+        return gameMapper.toResponse(gameRepository.save(game));
+    }
+
+    private String generateUniqueCode() {
+        String code;
+        do {
+            code = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        } while (gameRepository.findByInviteCode(code).isPresent());
+        return code;
     }
 
     private Game findGameOrThrow(UUID id) {

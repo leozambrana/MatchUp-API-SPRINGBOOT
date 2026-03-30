@@ -38,9 +38,8 @@ public class ParticipantService {
     public ParticipantResponse joinGame(UUID gameId, User currentUser) {
         Game game = findGameOrThrow(gameId);
 
-        if (participantRepository.existsByGameIdAndUserId(gameId, currentUser.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Você já está inscrito nesta partida");
-        }
+        validateNotAlreadyParticipant(gameId, currentUser.getId());
+        validateAvailableSlots(game);
 
         Participant participant = Participant.builder()
                 .game(game)
@@ -56,16 +55,30 @@ public class ParticipantService {
         Game game = findGameOrThrow(gameId);
         validateCreator(game, currentUser);
 
-        User userToAdd = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
-
-        if (participantRepository.existsByGameIdAndUserId(gameId, userId)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Usuário já está inscrito nesta partida");
-        }
+        User userToAdd = findUserOrThrow(userId);
+        validateNotAlreadyParticipant(gameId, userId);
+        validateAvailableSlots(game);
 
         Participant participant = Participant.builder()
                 .game(game)
                 .user(userToAdd)
+                .status(ParticipantStatus.CONFIRMED)
+                .joinedAt(LocalDateTime.now())
+                .build();
+
+        return participantMapper.toResponse(participantRepository.save(participant));
+    }
+
+    public ParticipantResponse joinByInviteCode(String inviteCode, User currentUser) {
+        Game game = gameRepository.findByInviteCode(inviteCode)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Código de convite inválido"));
+
+        validateNotAlreadyParticipant(game.getId(), currentUser.getId());
+        validateAvailableSlots(game);
+
+        Participant participant = Participant.builder()
+                .game(game)
+                .user(currentUser)
                 .status(ParticipantStatus.CONFIRMED)
                 .joinedAt(LocalDateTime.now())
                 .build();
@@ -118,6 +131,27 @@ public class ParticipantService {
     private void validateCreator(Game game, User currentUser) {
         if (!game.getCreatedBy().getId().equals(currentUser.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Apenas o criador pode realizar esta ação");
+        }
+    }
+
+    private void validateAvailableSlots(Game game) {
+        if (game.getSlots() == null) return;
+
+        long confirmedCount = participantRepository.countByGameIdAndStatus(game.getId(), ParticipantStatus.CONFIRMED);
+
+        if (confirmedCount >= game.getSlots()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Esta partida não possui vagas disponíveis");
+        }
+    }
+
+    private User findUserOrThrow(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+    }
+
+    private void validateNotAlreadyParticipant(UUID gameId, UUID userId) {
+        if (participantRepository.existsByGameIdAndUserId(gameId, userId)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Usuário já está inscrito nesta partida");
         }
     }
 }
