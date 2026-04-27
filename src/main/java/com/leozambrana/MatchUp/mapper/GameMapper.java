@@ -14,6 +14,13 @@ public class GameMapper {
                 game.getDescription(),
                 game.getLocation(),
                 game.getDateTime(),
+                game.getCourtType(),
+                game.getMatchFormat(),
+                game.getGender(),
+                game.getSlots(),
+                game.getDuration(),
+                game.getRecurrence(),
+                game.getInviteCode(),
                 game.getCreatedBy().getEmail()
         );
     }

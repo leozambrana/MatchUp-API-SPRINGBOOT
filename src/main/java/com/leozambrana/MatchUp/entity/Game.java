@@ -1,6 +1,6 @@
 package com.leozambrana.MatchUp.entity;
 
-
+import com.leozambrana.MatchUp.enums.*;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -27,13 +27,37 @@ public class Game {
     private UUID id;
 
     private String title;
-
     private String description;
-
     private String location;
 
     @Column(name = "date_time")
     private LocalDateTime dateTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "court_type")
+    private CourtType courtType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "match_format")
+    private MatchFormat matchFormat;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender")
+    private MatchGender gender;
+
+    @Column(name = "slots")
+    private Integer slots;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "duration")
+    private MatchDuration duration;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "recurrence")
+    private RecurrenceType recurrence;
+
+    @Column(name = "invite_code", unique = true)
+    private String inviteCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
@@ -52,5 +76,4 @@ public class Game {
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Expense> expenses;
-
 }

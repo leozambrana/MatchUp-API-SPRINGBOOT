@@ -1,5 +1,6 @@
 package com.leozambrana.MatchUp.entity;
 
+import com.leozambrana.MatchUp.enums.ParticipantStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -31,7 +32,9 @@ public class Participant {
     @JoinColumn(name = "game_id")
     private Game game;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private ParticipantStatus status;
 
     @Column(name = "joined_at")
     private LocalDateTime joinedAt;

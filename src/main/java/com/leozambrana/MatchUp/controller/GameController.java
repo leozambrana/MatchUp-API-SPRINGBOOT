@@ -41,6 +41,12 @@ public class GameController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PostMapping("/{id}/invite-code")
+    public ResponseEntity<GameResponse> generateInviteCode(@PathVariable UUID id, Principal principal) {
+        User currentUser = getAuthenticatedUser(principal);
+        return ResponseEntity.ok(gameService.generateInviteCode(id, currentUser));
+    }
+
     @GetMapping
     public ResponseEntity<List<GameResponse>> getAllGames() {
         return ResponseEntity.ok(gameService.getAllGames());
