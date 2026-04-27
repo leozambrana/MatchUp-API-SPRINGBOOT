@@ -9,7 +9,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TYPE court_type AS ENUM ('SAND', 'GRASS', 'SOCIETY', 'INDOOR', 'OTHER');
-CREATE TYPE match_format AS ENUM ('1X1', '2X2', '3X3', '4X4', '5X5', '6X6', '7X7', '11X11', 'OTHER');
+CREATE TYPE match_format AS ENUM ('X1_1', 'X2_2', 'X3_3', 'X4_4', 'X5_5', 'X6_6', 'X7_7', 'X11_11', 'OTHER');
 CREATE TYPE match_gender AS ENUM ('MALE', 'FEMALE', 'MIXED');
 CREATE TYPE match_duration AS ENUM ('MIN_30', 'MIN_45', 'HOUR_1', 'HOUR_1_30', 'HOUR_2', 'HOUR_2_30', 'HOUR_3');
 CREATE TYPE recurrence_type AS ENUM ('UNIQUE', 'WEEKLY', 'MONTHLY');
